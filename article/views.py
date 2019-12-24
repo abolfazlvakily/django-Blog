@@ -1,42 +1,12 @@
 from django.shortcuts import render, HttpResponse
 from . import models
 from django.shortcuts import get_object_or_404
-from django.contrib.auth import login, logout
 from django.views.generic import View
 from django.contrib.auth.mixins import AccessMixin
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponseRedirect
-from django.contrib.auth import authenticate
-from django.utils.translation import ugettext as _
-
-
-class Login(View):
-    @staticmethod
-    def get(request):
-        return render(request, 'auth/login.html')
-
-    @staticmethod
-    def post(request):
-        username = request.POST['username']
-        password = request.POST['password']
-        user = authenticate(username=username, password=password)
-        if user is not None:
-            login(request, user)
-            return HttpResponseRedirect(reverse_lazy('article:article'))
-        else:
-            context = {
-                'error': _('username or password is not valid')
-            }
-            return render(request, 'auth/login.html', context)
-
-
-class Logout(View):
-    @staticmethod
-    def get(request):
-        logout(request)
-        return HttpResponseRedirect(reverse_lazy('article:article'))
 
 
 class Article(AccessMixin, View):

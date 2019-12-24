@@ -6,7 +6,7 @@ import uuid
 
 
 class Person(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
     first_name = models.CharField(max_length=80)
     last_name = models.CharField(max_length=80)
     phone_number = models.CharField(max_length=150)
@@ -14,6 +14,9 @@ class Person(models.Model):
 
     def __str__(self):
         return '{} {}'.format(self.first_name, self.last_name)
+
+    class Meta:
+        db_table = 'persons'
 
 
 class Article(models.Model):

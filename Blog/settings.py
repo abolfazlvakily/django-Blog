@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'article.apps.ArticleConfig',
+    'authentication.apps.AuthenticationConfig',
     'ckeditor',
 ]
 
