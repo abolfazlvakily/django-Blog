@@ -7,15 +7,16 @@ from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponseRedirect
+from .forms import CommentForm
 
 
-class Article(AccessMixin, View):
+class Article2(AccessMixin, View):
     login_url = reverse_lazy('admin:login')
 
     @method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
         self.hash_id = kwargs.pop('hash_id', None)
-        return super(Article, self).dispatch(request, *args, **kwargs)
+        return super(Article2, self).dispatch(request, *args, **kwargs)
 
     def get(self, request):
         # detail
@@ -58,16 +59,31 @@ class Comment(View):
         self.article = get_object_or_404(models.Article, hash_id=self.hash_id)
         return super(Comment, self).dispatch(request, *args, **kwargs)
 
-    @staticmethod
-    def get(request):
-        return render(request, 'article/comment.html')
-
     def post(self, request):
-        comment_author = request.POST['author']
-        comment_content = request.POST['content']
-        models.Comment.objects.create(
-            post_id=self.article.id,
-            comment_author=comment_author,
-            comment_content=comment_content
-        )
-        return HttpResponseRedirect(reverse_lazy('article:detail', kwargs={'hash_id': self.hash_id}))
+        form = CommentForm(data=request.POST)
+        if form.is_valid():
+            comment_author = form.cleaned_data.get('comment_author')
+            comment_content = form.cleaned_data.get('comment_content')
+            models.Comment.objects.create(
+                post_id=self.article,
+                comment_author=comment_author,
+                comment_content=comment_content
+            )
+            return HttpResponseRedirect(reverse_lazy('article:detail', kwargs={'hash_id': self.hash_id}))
+
+
+class Article(Article2):
+    # this article added comment form on detail comment
+    def get(self, request):
+        # detail
+        if self.hash_id is not None:
+            comment_form = CommentForm()
+            article = get_object_or_404(models.Article, hash_id=self.hash_id)
+            context = {
+                'post': article,
+                'comment_form': comment_form
+            }
+            return render(request, 'article/article_detail.html', context)
+        else:
+            # list
+            return HttpResponse('list of articles ...')
